@@ -10,52 +10,67 @@ using namespace std;
 
 int main()
 {
-    Mat einstein = imread("/home/demir/CLionProjects/faceDetection/einstein.jpg",0);
+    //Load the einstein.jpg
+    Mat einstein = imread("einstein.jpg",0);
     if (einstein.empty())
     {
         cout<<"Einstein not found"<<endl;
         return -1;
     }
 
+    //Load cascade classifier for face detection
     CascadeClassifier face_cascade;
-    if (!face_cascade.load("/home/demir/CLionProjects/faceDetection/haarcascade_frontalface_default.xml"))
+    if (!face_cascade.load("haarcascade_frontalface_default.xml"))
     {
         cout<<"Load face cascade failed"<<endl;
         return -1;
     }
 
+    //Face detection on einstein.jpg
     vector<Rect> faces;
     face_cascade.detectMultiScale(einstein,faces);
 
+    //Draw the rectangle on detected face
     for (const auto &face:faces)
     {
         rectangle(einstein,face,Scalar(255,255,255),10);
     }
 
+    //Show the einstein.jpg
     namedWindow("Einstein",WINDOW_NORMAL);
     imshow("Einstein",einstein);
-    waitKey(0);
+
+    // If the q key is pressed then close Einstein window.
+    if (waitKey(0) == 'q'){destroyWindow("Einstein");}
 
 
-    Mat barcelona = imread("/home/demir/CLionProjects/faceDetection/barcelona.jpg",0);
+
+    //Load the barcelona.jpg
+    Mat barcelona = imread("barcelona.jpg",0);
     if(barcelona.empty())
     {
         cout<<"Barcelona not found"<<endl;
         return -1;
     }
 
+    //Face detection on barcelona.jpg
     vector<Rect> faces_barcelona;
     face_cascade.detectMultiScale(barcelona,faces_barcelona,1.1,7);
+
+    // Draw the rectangle on detected face
     for (const auto &face:faces_barcelona)
     {
         rectangle(barcelona,face,Scalar(255,255,255),10);
     }
 
+    // Show the barcelona.jpg
     namedWindow("Barcelona",WINDOW_NORMAL);
     imshow("Barcelona",barcelona);
-    waitKey(0);
+    // If the q key is pressed then close the Barcelona window.
+    if (waitKey(0) == 'q'){destroyWindow("Barcelona");}
 
 
+    //Video capture
     VideoCapture cap = VideoCapture(0);
     if(!cap.isOpened())
     {
@@ -68,21 +83,24 @@ int main()
     {
         cap >> frame;
         if (frame.empty()) break;
-        Mat gray;
-        cvtColor(frame, gray, COLOR_BGR2GRAY);
 
+        // Face detection on frame
         vector<Rect> faces_video;
-        face_cascade.detectMultiScale(gray,faces_video,1.1,7);
+        face_cascade.detectMultiScale(frame,faces_video,1.1,7);
 
+        // Draw the rectangles on detected faces
         for (const auto &face:faces_video)
         {
-            rectangle(gray,face,Scalar(255,255,255),10);
+            rectangle(frame,face,Scalar(255,255,255),10);
         }
-        imshow("Face Detection",gray);
+        // Show the frame
+        imshow("Face Detection",frame);
 
+        // If the q key is pressed then break the while loop.
         if (waitKey(1) == 'q') break;
     }
 
+    // Release resources
     cap.release();
     destroyAllWindows();
     return 0;
